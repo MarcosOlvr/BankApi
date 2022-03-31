@@ -1,4 +1,4 @@
-﻿namespace Cumbuca.Models
+﻿namespace Desafio.Models
 {
     public class TransacaoViewModel
     {

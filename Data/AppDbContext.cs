@@ -1,7 +1,7 @@
-﻿using Cumbuca.Models;
+﻿using Desafio.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cumbuca.Data
+namespace Desafio.Data
 {
     public class AppDbContext : DbContext
     {

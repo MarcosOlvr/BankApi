@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "Cumbuca": {
+    "Desafio": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

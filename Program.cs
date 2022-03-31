@@ -1,5 +1,5 @@
-using Cumbuca;
-using Cumbuca.Data;
+using Desafio;
+using Desafio.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

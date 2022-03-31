@@ -1,10 +1,10 @@
-﻿using Cumbuca.Models;
+﻿using Desafio.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Cumbuca.Services
+namespace Desafio.Services
 {
     public static class TokenService
     {

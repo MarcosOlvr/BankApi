@@ -1,11 +1,11 @@
-﻿using Cumbuca.Data;
-using Cumbuca.Models;
-using Cumbuca.Services;
+﻿using Desafio.Data;
+using Desafio.Models;
+using Desafio.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace Cumbuca.Controllers
+namespace Desafio.Controllers
 {
     [ApiController]
     [Route("v1")]

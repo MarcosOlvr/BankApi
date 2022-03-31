@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Cumbuca.Models
+namespace Desafio.Models
 {
     public class LoginViewModel
     {

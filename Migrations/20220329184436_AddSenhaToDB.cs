@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Cumbuca.Migrations
+namespace Desafio.Migrations
 {
     public partial class AddSenhaToDB : Migration
     {

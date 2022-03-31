@@ -1,4 +1,4 @@
-﻿namespace Cumbuca
+﻿namespace Desafio
 {
     public static class Settings
     {
