@@ -102,7 +102,7 @@ namespace Desafio.Controllers
             SalvarTransacao(transacao);
             
             // Retornando 201, pois foi criada uma transferência
-            return StatusCode(201, new { mensagem = "Transação completa!" });
+            return StatusCode(201, transacao);
         }
         
         [HttpPost]
@@ -135,7 +135,7 @@ namespace Desafio.Controllers
             SalvarTransacao(transacao);
             
             // Retornando 201, pois foi criada uma transferência
-            return StatusCode(201, new { mensagem = "Transação completa!" });
+            return StatusCode(201, transacao);
         }
 
         [HttpGet]
@@ -159,6 +159,38 @@ namespace Desafio.Controllers
             }
 
             return Ok(minhasTransferencias);
+        }
+
+        [HttpPatch]
+        [Authorize]
+        [Route("estorno/{id}")]
+        public async Task<ActionResult<dynamic>> Estorno(int id)
+        {
+            var transferencia = _db.Transacoes.Find(id);
+            if (transferencia == null)
+                return NotFound();
+
+            if (transferencia.PodeSerEstornada == false)
+                return BadRequest( new { mensagem = "Esta transação já foi estornada!" });
+
+            var userId = GetIdByClaim();
+            if (transferencia.ContaEnviante != userId)
+                return BadRequest();
+            
+            var user = GetUserById(userId);
+            var recebedor = GetUserById(transferencia.ContaRecebedora);
+
+            if (user == null || recebedor == null)
+                return NotFound();
+
+            transferencia.PodeSerEstornada = false;
+            recebedor.SaldoInicial -= transferencia.Valor;
+            user.SaldoInicial += transferencia.Valor;
+
+            _db.Transacoes.Update(transferencia);
+            _db.SaveChanges();
+
+            return Ok( new { mensagem = "Transação estornada com sucesso!" });
         }
 
         public User UserLogin(string cpf, string senha)
