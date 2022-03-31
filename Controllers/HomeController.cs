@@ -206,7 +206,7 @@ namespace Cumbuca.Controllers
             {
                 ContaRecebedora = usuarios.Item1.Id,
                 ContaEnviante = usuarios.Item2.Id,
-               Valor = valor
+                Valor = valor
             };
 
             return transacao;
