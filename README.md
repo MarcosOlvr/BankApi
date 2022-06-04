@@ -1,4 +1,4 @@
-<h1 align="center"> Desafio de Programação Back-End </h1>
+<h1 align="center"> BankApi </h1>
 
 ## Setup do projeto
 - C# (_.NET_)
