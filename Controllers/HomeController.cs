@@ -1,6 +1,6 @@
-﻿using Desafio.Data;
+﻿using BankApi.Repositories.Contracts;
 using Desafio.Models;
-using Desafio.Services;
+using Desafio.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -8,55 +8,20 @@ using System.Security.Claims;
 namespace Desafio.Controllers
 {
     [ApiController]
-    [Route("v1")]
+    [Authorize]
+    [Route("api/[controller]")]
     public class HomeController : ControllerBase
     {
-        private readonly AppDbContext _db;
+        private readonly IUserRepository _userRepo;
+        private readonly ITransacaoRepository _transfRepo;
 
-        public HomeController(AppDbContext db)
+        public HomeController(IUserRepository userRepo, ITransacaoRepository transfRepo)
         {
-            _db = db;
-        }
-
-        [HttpPost]
-        [Route("login")]
-        public async Task<ActionResult<dynamic>> AuthenticateAsync([FromBody]LoginViewModel model)
-        {
-            var user = UserLogin(model.Cpf, model.Senha);
-
-            if (user == null)
-                return NotFound(new { mensagem = "Usuário ou senha inválidos" });
-
-            var token = TokenService.GenerateToken(user);
-
-            // Oculta a senha na hora de retornar
-            user.Senha = "";
-
-            return new
-            {
-                user = user,
-                token = token
-            };
-        }
-
-        [HttpPost]
-        [Route("cadastrar")]
-        public async Task<ActionResult<dynamic>> CreateUserAsync([FromBody]User model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var userFind = _db.User.FirstOrDefault(x => x.Cpf == model.Cpf);
-            if (userFind != null)
-                return BadRequest(new { mensagem = "Este CPF já esta sendo usado!" });
-
-            CreateUser(model);
-            
-            return StatusCode(201, new { mensagem = "Usuário criado!" });
+            _userRepo = userRepo;
+            _transfRepo = transfRepo;
         }
 
         [HttpGet]
-        [Authorize]
         [Route("saldo")]
         public async Task<ActionResult<dynamic>> VerSaldo()
         {
@@ -64,7 +29,7 @@ namespace Desafio.Controllers
             if (userId <= 0)
                 return BadRequest();
 
-            var user = GetUserById(userId);
+            var user = _userRepo.GetUser(userId);
             if (user == null)
                 return NotFound();
 
@@ -73,7 +38,6 @@ namespace Desafio.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [Route("transacao")]
         public async Task<ActionResult<dynamic>> TransacaoByIdAsync([FromBody]TransacaoViewModel model)
         {
@@ -85,8 +49,8 @@ namespace Desafio.Controllers
             if (userId <= 0)
                 return BadRequest();
 
-            var enviante = GetUserById(userId);
-            var recebedor = GetUserById(model.Recebedor);
+            var enviante = _userRepo.GetUser(userId);
+            var recebedor = _userRepo.GetUser(model.Recebedor);
             if (enviante == null || recebedor == null)
                 return NotFound(new { mensagem = "Usuário não encontrado!" });
 
@@ -98,15 +62,14 @@ namespace Desafio.Controllers
             recebedor.SaldoInicial += model.Valor;
 
             var tuple = new Tuple<User, User>(recebedor, enviante);
-            var transacao = CreateTransacao(tuple, model.Valor);
-            SalvarTransacao(transacao);
+            var transacao = _transfRepo.CreateTransacao(tuple, model.Valor);
+            _transfRepo.SalvarTransacao(transacao);
             
             // Retornando 201, pois foi criada uma transferência
             return StatusCode(201, transacao);
         }
         
         [HttpPost]
-        [Authorize]
         [Route("transacao/cpf")]
         public async Task<ActionResult<dynamic>> TransacaoByCpfAsync([FromBody]TransacaoByCpf model)
         {
@@ -118,8 +81,8 @@ namespace Desafio.Controllers
             if (userId <= 0)
                 return BadRequest();
 
-            var enviante = GetUserById(userId);
-            var recebedor = GetUserByCpf(model.Recebedor);
+            var enviante = _userRepo.GetUser(userId);
+            var recebedor = _userRepo.GetUser(model.Recebedor);
             if (enviante == null || recebedor == null)
                 return NotFound(new { mensagem = "Usuário não encontrado!" });
 
@@ -131,15 +94,14 @@ namespace Desafio.Controllers
             recebedor.SaldoInicial += model.Valor;
 
             var tuple = new Tuple<User, User>(recebedor, enviante);
-            var transacao = CreateTransacao(tuple, model.Valor);
-            SalvarTransacao(transacao);
+            var transacao = _transfRepo.CreateTransacao(tuple, model.Valor);
+            _transfRepo.SalvarTransacao(transacao);
             
             // Retornando 201, pois foi criada uma transferência
             return StatusCode(201, transacao);
         }
 
         [HttpGet]
-        [Authorize]
         [Route("data")]
         public async Task<ActionResult<dynamic>> GetTransacaoByDate([FromQuery]DateTime inicial, [FromQuery]DateTime final)
         {
@@ -162,11 +124,10 @@ namespace Desafio.Controllers
         }
 
         [HttpPatch]
-        [Authorize]
         [Route("estorno/{id}")]
         public async Task<ActionResult<dynamic>> Estorno(int id)
         {
-            var transferencia = _db.Transacoes.Find(id);
+            var transferencia = _transfRepo.GetTransacao(id);
             if (transferencia == null)
                 return NotFound();
 
@@ -177,80 +138,21 @@ namespace Desafio.Controllers
             if (transferencia.ContaEnviante != userId)
                 return BadRequest();
             
-            var user = GetUserById(userId);
-            var recebedor = GetUserById(transferencia.ContaRecebedora);
+            var user = _userRepo.GetUser(userId);
+            var recebedor = _userRepo.GetUser(transferencia.ContaRecebedora);
 
             if (user == null || recebedor == null)
                 return NotFound();
 
-            transferencia.PodeSerEstornada = false;
-            recebedor.SaldoInicial -= transferencia.Valor;
-            user.SaldoInicial += transferencia.Valor;
-
-            _db.Transacoes.Update(transferencia);
-            _db.SaveChanges();
+            _transfRepo.UpdateTransacao(transferencia);
 
             return Ok( new { mensagem = "Transação estornada com sucesso!" });
         }
 
-        public User UserLogin(string cpf, string senha)
-        {
-            var user = _db.User.FirstOrDefault(x => x.Cpf == cpf && x.Senha == senha);
-
-            if (user == null)
-                return null;
-
-            return user;
-        }
-        
-        public User GetUserById(int id)
-        {
-            var user = _db.User.Find(id);
-            return user;
-        }
-        
-        public User GetUserByCpf(string cpf)
-        {
-            var user = _db.User.FirstOrDefault(x => x.Cpf == cpf);
-            return user;
-        }
-        
         public int GetIdByClaim()
         {
             var userId = User.Claims.Where(e => e.Type == "UserId").Select(e => e.Value).FirstOrDefault();
             return int.Parse(userId);
-        }
-
-        public void CreateUser(User user)
-        {
-            if (user == null)
-                return;
-
-            _db.User.Add(user);
-            _db.SaveChanges();
-        }
-
-        public Transacao CreateTransacao(Tuple<User, User> usuarios, decimal valor)
-        {
-            // O item 1 dessa tupla deve ser sempre o RECEBEDOR
-            // O item 2 dessa tupla deve ser sempre o ENVIANTE
-            Transacao transacao = new Transacao()
-            {
-                ContaRecebedora = usuarios.Item1.Id,
-                ContaEnviante = usuarios.Item2.Id,
-                Valor = valor
-            };
-
-            return transacao;
-        }
-
-        public void SalvarTransacao(Transacao model)
-        {
-            if (model == null)
-                return;
-
-            _db.Transacoes.Add(model);
-            _db.SaveChanges();
         }
     }
 }
