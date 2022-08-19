@@ -1,3 +1,5 @@
+using BankApi.Repositories;
+using BankApi.Repositories.Contracts;
 using Desafio;
 using Desafio.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITransacaoRepository, TransacaoRepository>();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")

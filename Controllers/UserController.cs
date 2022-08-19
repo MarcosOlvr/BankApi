@@ -11,12 +11,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace BankApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class LoginController : ControllerBase
+    [Route("api")]
+    public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
 
-        public LoginController(IUserRepository userRepo)
+        public UserController(IUserRepository userRepo)
         {
             _userRepo = userRepo;
         }
@@ -43,6 +43,7 @@ namespace BankApi.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Route("cadastrar")]
         public async Task<ActionResult<dynamic>> CreateUserAsync([FromBody]User model)
         {

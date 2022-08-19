@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BankApi.Repositories.Contracts;
 using Desafio.Data;
 using Desafio.Models;
+using Desafio.Models.ViewModels;
 
 namespace BankApi.Repositories
 {
@@ -17,39 +18,100 @@ namespace BankApi.Repositories
             _db = db;
         }
 
-        public Transacao CreateTransacao(Tuple<User, User> usuarios, decimal valor)
+        public Transacao CreateTransacao(TransacaoByCpf model, int userId)
         {
-            // O item 1 dessa tupla deve ser sempre o RECEBEDOR
-            // O item 2 dessa tupla deve ser sempre o ENVIANTE
+            var enviante = _db.User.Find(userId);
+            var recebedor = _db.User.Find(model.Recebedor);
+            if (enviante == null || recebedor == null)
+                throw new Exception("Usuário não encontrado!");
+
+            var saldo = enviante.SaldoInicial;
+            if (saldo <= 0 || saldo < model.Valor)
+                throw new Exception("Saldo insuficiente!");
+
+            enviante.SaldoInicial -= model.Valor;
+            recebedor.SaldoInicial += model.Valor;
+
             Transacao transacao = new Transacao()
             {
-                ContaRecebedora = usuarios.Item1.Id,
-                ContaEnviante = usuarios.Item2.Id,
-                Valor = valor
+                ContaRecebedora = recebedor.Id,
+                ContaEnviante = userId,
+                Valor = model.Valor
             };
+
+            _db.Transacoes.Add(transacao);
+            _db.SaveChanges();
 
             return transacao;
         }
 
-        public Transacao GetTransacao(int id)
+        public Transacao CreateTransacao(TransacaoViewModel model, int userId)
         {
-            throw new NotImplementedException();
-        }
+            var enviante = _db.User.Find(userId);
+            var recebedor = _db.User.Find(model.Recebedor);
+            if (enviante == null || recebedor == null)
+                throw new Exception("Usuário não encontrado!");
 
-        public bool SalvarTransacao(Transacao model)
-        {
-            if (model == null)
-                return false;
+            var saldo = enviante.SaldoInicial;
+            if (saldo <= 0 || saldo < model.Valor)
+                throw new Exception("Saldo insuficiente!");
 
-            _db.Transacoes.Add(model);
+            enviante.SaldoInicial -= model.Valor;
+            recebedor.SaldoInicial += model.Valor;
+
+            Transacao transacao = new Transacao()
+            {
+                ContaRecebedora = recebedor.Id,
+                ContaEnviante = userId,
+                Valor = model.Valor
+            };
+
+            _db.Transacoes.Add(transacao);
             _db.SaveChanges();
 
-            return true;
+            return transacao;
         }
 
-        public void UpdateTransacao(Transacao model)
+        public List<Transacao> GetByDate(DateTime inicial, DateTime final, int userId)
         {
-            _db.Transacoes.Update(model);
+            var transacoes = _db.Transacoes.Where(x => x.ContaEnviante == userId || x.ContaRecebedora == userId).ToList();
+
+            var minhasTransferencias = new List<Transacao>();
+            foreach (var obj in transacoes)
+            {
+                if (obj.DataDeProcessamento >= inicial && obj.DataDeProcessamento <= final)
+                {
+                    minhasTransferencias.Add(obj);
+                }
+            }
+
+            return minhasTransferencias;
+        }
+
+        public Transacao GetTransacao(int id)
+        {
+            var transferencia = _db.Transacoes.Find(id);
+
+            return transferencia;
+        }
+
+        public void UpdateTransacao(int id)
+        {
+            var transferencia = _db.Transacoes.Find(id);
+            if (transferencia == null)
+                throw new Exception("Transação não encontrada!");
+
+            var recebedor = _db.User.Find(transferencia.ContaRecebedora);
+            var user = _db.User.Find(transferencia.ContaEnviante);
+
+            if (user == null || recebedor == null)
+                throw new Exception("Erro ao procurar um usuário!");
+
+            transferencia.PodeSerEstornada = false;
+            recebedor.SaldoInicial -= transferencia.Valor;
+            user.SaldoInicial += transferencia.Valor;
+
+            _db.Transacoes.Update(transferencia);
             _db.SaveChanges();
         }
     }
