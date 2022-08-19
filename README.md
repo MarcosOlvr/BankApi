@@ -27,7 +27,7 @@ dotnet add package Microsoft.EntityFrameworkCore.Design --version 7.0.0-preview.
 dotnet ef migrations add InitialCreation
 ```
 ```
-dotnet ef update database
+dotnet ef database update
 ```
 ### Rode o projeto com:
 ``` 
