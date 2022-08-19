@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Desafio.Models
+namespace Desafio.Models.ViewModels
 {
     public class LoginViewModel
     {
