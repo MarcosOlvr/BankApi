@@ -17,15 +17,10 @@ namespace BankApi.Repositories
             _db = db;
         }
 
-        public bool CreateUser(User model)
+        public void CreateUser(User model)
         {
-            if (model == null)
-                return false;
-
             _db.User.Add(model);
             _db.SaveChanges();
-
-            return true;
         }
 
         public User GetUser(int id)

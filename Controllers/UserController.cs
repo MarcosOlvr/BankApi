@@ -43,19 +43,18 @@ namespace BankApi.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Route("cadastrar")]
         public async Task<ActionResult<dynamic>> CreateUserAsync([FromBody]User model)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return NotFound();
 
             var userFind = _userRepo.GetUser(model.Cpf);
             if (userFind != null)
                 return BadRequest(new { mensagem = "Este CPF já esta sendo usado!" });
 
             _userRepo.CreateUser(model);
-            
+
             return StatusCode(201, new { mensagem = "Usuário criado!" });
         }
     }

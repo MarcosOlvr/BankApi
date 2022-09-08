@@ -38,7 +38,6 @@ namespace Desafio.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Route("transacao")]
         public async Task<ActionResult<dynamic>> TransacaoByIdAsync([FromBody]TransacaoViewModel model)
         {
@@ -57,7 +56,6 @@ namespace Desafio.Controllers
         }
         
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Route("transacao/cpf")]
         public async Task<ActionResult<dynamic>> TransacaoByCpfAsync([FromBody]TransacaoByCpf model)
         {
@@ -76,6 +74,17 @@ namespace Desafio.Controllers
         }
 
         [HttpGet]
+        [Route("transacao/{id:int}")]
+        public async Task<ActionResult<dynamic>> GetTransacao([FromRoute] int id)
+        {
+            var transferencia = _transfRepo.GetTransacao(id);
+            if (transferencia == null)
+                return NotFound();
+
+            return Ok(transferencia);
+        }
+
+        [HttpGet]
         [Route("data")]
         public async Task<ActionResult<dynamic>> GetTransacaoByDate([FromQuery]DateTime inicial, [FromQuery]DateTime final)
         {
@@ -89,7 +98,6 @@ namespace Desafio.Controllers
         }
 
         [HttpPatch]
-        [ValidateAntiForgeryToken]
         [Route("estorno/{id}")]
         public async Task<ActionResult<dynamic>> Estorno(int id)
         {

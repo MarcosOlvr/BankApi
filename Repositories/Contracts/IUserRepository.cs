@@ -10,7 +10,7 @@ namespace BankApi.Repositories.Contracts
     {
         User GetUser(int id);
         User GetUser(string cpf);
-        bool CreateUser(User model);
+        void CreateUser(User model);
         User UserLogin(string cpf, string senha);
     }
 }

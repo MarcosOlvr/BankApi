@@ -40,7 +40,7 @@ dotnet watch run
 Para criar um usuário, acesse o endpoint abaixo: 
 <br>
 
-**POST /v1/cadastrar**
+**POST /api/cadastrar**
 ``` json
 {
 	"nome": "Luva",
@@ -56,7 +56,7 @@ Para criar um usuário, acesse o endpoint abaixo:
 Para realizar o login da conta, basta acessar:
 <br>
 
-**POST /v1/login**
+**POST /api/login**
 ``` json
 {
     "cpf": "00000000001",
@@ -74,7 +74,7 @@ A transferência pode ser feita de duas maneiras:
 <br>
 
 Para fazer a transação pelo Id, acesse: <br>
-**POST /v1/transacao**
+**POST /api/transacao**
 ``` Json
 {
 	"recebedor": "8",
@@ -84,7 +84,7 @@ Para fazer a transação pelo Id, acesse: <br>
 ![transação pelo id](./imagens/transacaoById.png)
 
 Para fazer a transferência pelo CPF, acesse: <br>
-**POST /v1/transacao/cpf**
+**POST /api/transacao/cpf**
 ``` Json
 {
 	"recebedor": "00000000000",
@@ -98,7 +98,7 @@ Para estornar uma transferência, acesse: <br>
 (Lembre de passar o id da transação)
 <br>
 
-**PATCH /v1/estorno/{id}**
+**PATCH /api/estorno/{id}**
 
 ![estornar transação](./imagens/estorno.png)
 
@@ -106,12 +106,12 @@ Para estornar uma transferência, acesse: <br>
 Caso queira filtrar as transferências por data, acesse:
 <br>
 
-**GET /v1/data?inicial={dataInicial}&&final={dataFinal}**
+**GET /api/data?inicial={dataInicial}&&final={dataFinal}**
 <br>
 
 Um exemplo pode ser:
 ```
-/v1/data?inicial=2022-03-25&&final=2022-04-01
+/api/data?inicial=2022-03-25&&final=2022-04-01
 ```
 
 ![filtrar por data](./imagens/verTransferencias.png)
@@ -120,6 +120,6 @@ Um exemplo pode ser:
 Para ver o saldo de sua conta, acesse:
 <br>
 
-**GET /v1/saldo**
+**GET /api/saldo**
 
 ![visualizar saldo](./imagens/saldo.png)
