@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BankApi.Repositories.Contracts;
 using Desafio.Models;
-using Desafio.Models.ViewModels;
+using Desafio.Models.DTOs;
 using Desafio.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +19,7 @@ namespace BankApi.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult<dynamic>> AuthenticateAsync([FromBody]LoginViewModel model)
+        public async Task<ActionResult<dynamic>> AuthenticateAsync([FromBody]LoginDTO model)
         {
             var user = _userRepo.UserLogin(model.Cpf, model.Senha);
 

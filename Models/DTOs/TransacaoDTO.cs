@@ -1,6 +1,6 @@
-﻿namespace Desafio.Models.ViewModels
+﻿namespace Desafio.Models.DTOs
 {
-    public class TransacaoViewModel
+    public class TransacaoDTO
     {
         public int Recebedor { get; set; }
         public decimal Valor { get; set; }

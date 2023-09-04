@@ -1,9 +1,7 @@
 ﻿using BankApi.Repositories.Contracts;
-using Desafio.Models;
-using Desafio.Models.ViewModels;
+using Desafio.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Desafio.Controllers
 {
@@ -39,7 +37,7 @@ namespace Desafio.Controllers
 
         [HttpPost]
         [Route("transacao")]
-        public async Task<ActionResult<dynamic>> TransacaoByIdAsync([FromBody]TransacaoViewModel model)
+        public async Task<ActionResult<dynamic>> TransacaoByIdAsync([FromBody]TransacaoDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest();

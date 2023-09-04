@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BankApi.Repositories.Contracts;
 using Desafio.Data;
 using Desafio.Models;
-using Desafio.Models.ViewModels;
+using Desafio.Models.DTOs;
 
 namespace BankApi.Repositories
 {
@@ -45,7 +41,7 @@ namespace BankApi.Repositories
             return transacao;
         }
 
-        public Transacao CreateTransacao(TransacaoViewModel model, int userId)
+        public Transacao CreateTransacao(TransacaoDTO model, int userId)
         {
             var enviante = _db.User.Find(userId);
             var recebedor = _db.User.Find(model.Recebedor);

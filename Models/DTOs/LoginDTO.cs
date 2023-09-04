@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Desafio.Models.ViewModels
+namespace Desafio.Models.DTOs
 {
-    public class LoginViewModel
+    public class LoginDTO
     {
         [MinLength(11, ErrorMessage = "CPF length is 11")]
         [MaxLength(11, ErrorMessage = "CPF length is 11")]

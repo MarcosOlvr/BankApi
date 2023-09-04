@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BankApi.Repositories.Contracts;
 using Desafio.Data;
 using Desafio.Models;
